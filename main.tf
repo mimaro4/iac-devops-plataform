@@ -8,9 +8,9 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg" {
 
-  name     = "myResourceGroup"
+  name     = "rg-devops-mimm-env"
 
-  location = "East US"
+  location = "East US"  # Cambia la ubicación según tu preferencia
 
 }
 
@@ -18,47 +18,31 @@ resource "azurerm_resource_group" "rg" {
 
 resource "azurerm_virtual_network" "vnet" {
 
-  name                = "myVNet"
+  name                = "vnet-devops-mimm-env"
 
-  address_space       = ["10.0.0.0/16"]
+  address_space       = ["10.0.0.0/24"]  # Cambia el rango según tus necesidades
 
   location            = azurerm_resource_group.rg.location
 
   resource_group_name = azurerm_resource_group.rg.name
 
-}
+ 
+
+  subnet {
+
+    name           = "subnet-devops-mimm-env"
+
+    address_prefix = "10.0.0.0/24"  # Ajusta el rango de la subred según tus necesidades
+
+  }
 
  
 
-resource "azurerm_subnet" "subnet" {
+  subnet {
 
-  name                 = "mySubnet"
+    name           = "subnet-jenkins"
 
-  resource_group_name  = azurerm_resource_group.rg.name
-
-  virtual_network_name = azurerm_virtual_network.vnet.name
-
-  address_prefixes     = ["10.0.1.0/24"]
-
-}
-
- 
-
-resource "azurerm_network_interface" "nic" {
-
-  name                = "myNIC"
-
-  resource_group_name = azurerm_resource_group.rg.name
-
- 
-
-  ip_configuration {
-
-    name                          = "myNICConfig"
-
-    subnet_id                     = azurerm_subnet.subnet.id
-
-    private_ip_address_allocation = "Dynamic"
+    address_prefix = "10.0.1.0/28"  # Ajusta el rango de la subred de Jenkins según tus necesidades
 
   }
 
@@ -68,17 +52,17 @@ resource "azurerm_network_interface" "nic" {
 
 resource "azurerm_linux_virtual_machine" "vm" {
 
-  name                = "myVM"
+  name                = "mv-jenkins-mimm-dev"
 
   resource_group_name = azurerm_resource_group.rg.name
 
   location            = azurerm_resource_group.rg.location
 
-  size                = "Standard_DS1_v2"
+  size                = "Standard_B2ms"
 
   admin_username      = "adminuser"
 
-  admin_password      = "Password1234!"
+  admin_password      = "Password1234!"  # Cambia la contraseña según tus necesidades
 
  
 
@@ -106,10 +90,65 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
     offer     = "UbuntuServer"
 
-    sku       = "16.04-LTS"
+    sku       = "20.04-LTS"
 
     version   = "latest"
 
   }
 
+ 
+
+  provisioner "remote-exec" {
+
+    inline = [
+
+      "sudo apt update",
+
+      "sudo apt install -y openjdk-11-jdk",
+
+      "sudo apt install -y jenkins",
+
+      "sudo systemctl enable jenkins",
+
+      "sudo systemctl start jenkins",
+
+    ]
+
+  }
+
+}
+
+ 
+
+resource "azurerm_network_interface" "nic" {
+
+  name                = "nic-jenkins-mimm-dev"
+
+  resource_group_name = azurerm_resource_group.rg.name
+
+ 
+
+  ip_configuration {
+
+    name                          = "nicConfig"
+
+    subnet_id                     = azurerm_subnet.subnet-jenkins.id
+
+    private_ip_address_allocation = "Dynamic"
+
+  }
+
+}
+
+ 
+
+resource "azurerm_subnet" "subnet-jenkins" {
+
+  name                 = "subnet-jenkins"
+
+  resource_group_name  = azurerm_resource_group.rg.name
+
+  virtual_network_name = azurerm_virtual_network.vnet.name
+
+  address_prefixes     = ["10.0.1.0/28"]
 }
