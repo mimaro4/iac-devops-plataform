@@ -10,7 +10,7 @@ resource "azurerm_resource_group" "rg" {
 
   name     = "rg-devops-mimm-env"
 
-  location = "East US"  # Cambia la ubicación según tu preferencia
+  location = "North Europe"
 
 }
 
@@ -18,9 +18,9 @@ resource "azurerm_resource_group" "rg" {
 
 resource "azurerm_virtual_network" "vnet" {
 
-  name                = "vnet-devops-mimm-env"
+  name                = "vnet-devops-mimm-dev"
 
-  address_space       = ["10.0.0.0/24"]  # Cambia el rango según tus necesidades
+  address_space       = ["10.0.0.0/24"]
 
   location            = azurerm_resource_group.rg.location
 
@@ -30,19 +30,9 @@ resource "azurerm_virtual_network" "vnet" {
 
   subnet {
 
-    name           = "subnet-devops-mimm-env"
+    name           = "snet-jenkins"
 
-    address_prefix = "10.0.0.0/24"  # Ajusta el rango de la subred según tus necesidades
-
-  }
-
- 
-
-  subnet {
-
-    name           = "subnet-jenkins"
-
-    address_prefix = "10.0.1.0/28"  # Ajusta el rango de la subred de Jenkins según tus necesidades
+    address_prefix = "10.0.1.0/28"
 
   }
 
@@ -60,9 +50,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   size                = "Standard_B2ms"
 
-  admin_username      = "adminuser"
+  admin_username      = "admin"
 
-  admin_password      = "Password1234!"  # Cambia la contraseña según tus necesidades
+  admin_password      = "Gft2023!"
 
  
 
@@ -88,7 +78,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
     publisher = "Canonical"
 
-    offer     = "UbuntuServer"
+    offer     = "Ubuntu"
 
     sku       = "20.04-LTS"
 
