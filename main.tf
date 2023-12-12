@@ -142,3 +142,10 @@ resource "azurerm_subnet" "subnet-jenkins" {
 
   address_prefixes     = ["10.0.1.0/28"]
 }
+
+resource "azurem_container_registry" "mi_acr" {
+ name			= "acr-devops-mimm"
+ resource_group_name	= "azurem_resource_group.rg.name
+ location		= "North Europe"
+ sku			= "Basic"
+}
